@@ -2,12 +2,242 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Roulette</title>
-  <script>location.replace('public/' + location.search + location.hash);</script>
-  <meta http-equiv="refresh" content="0; url=public/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body style="background:#120c08;color:#e9d9b0;font-family:sans-serif;text-align:center;padding-top:30vh">
-  <a href="public/" style="color:#f6e19a">Roulette öffnen</a>
+<body>
+  <!-- Start: Hinweis + Anleitung (erscheint zuerst) -->
+  <section id="screen-intro" class="screen">
+    <h1 class="title">Roulette</h1>
+    <div class="card intro-card">
+      <div class="help">
+        <h2>Willkommen am Tisch</h2>
+        <div class="disclaimer">
+          <b>Hinweis:</b> Dieses Spiel dient nur der Unterhaltung. Gespielt wird ausschließlich mit Spielgeld –
+          die Jetons haben keinen Wert, es gibt keine Einzahlung und keine Auszahlung von echtem Geld.
+          Glücksspiel um echtes Geld kann süchtig machen. Kostenlose Hilfe: BIÖG-Telefonberatung 0800 1 37 27 00.
+        </div>
+
+        <h3>So funktioniert's</h3>
+        <ol>
+          <li><b>Host wählen:</b> Ein Gerät (Fernseher, Laptop) ist der <b>Host</b>. Er zeigt den Kessel, den Pot und alle Spieler und wirft die Kugel. Der Host kann auch selbst setzen. Die Seite des Hosts muss während des Spiels geöffnet bleiben.</li>
+          <li><b>Mitspielen:</b> Alle anderen scannen am Handy den QR-Code aus den ⚙︎ Einstellungen des Hosts oder öffnen den Link, den der Host schickt – das geht auch über das Internet, nicht nur im selben WLAN. Dann Namen eingeben und <b>Spieler</b> wählen.</li>
+          <li><b>Jeton wählen</b> (1 bis 1000) und dann aufs Tableau tippen. Jeder sieht am Handy nur seine eigenen Einsätze; auf dem Fernseher sieht man alle mit Namen und Farbe.</li>
+          <li><b>Die Kugel:</b> Der Host drückt „Kugel werfen“. Ein paar Sekunden lang darf noch gesetzt werden, dann heißt es <i>„Rien ne va plus“</i> – nichts geht mehr.</li>
+          <li><b>Gewinn:</b> Im Modus <b>Pot aufteilen</b> kommen alle Einsätze in den Pot, der unter allen Gewinnern aufgeteilt wird (riskantere Wetten bekommen einen größeren Anteil). Trifft niemand, bleibt der Pot als Jackpot liegen. Im Modus <b>Klassisch</b> zahlt die Bank feste Casino-Quoten.</li>
+        </ol>
+
+        <h3>Wo kann ich setzen?</h3>
+        <table class="odds">
+          <tr><td>Auf eine Zahl (Plein)</td><td>35 : 1</td></tr>
+          <tr><td>Linie zwischen zwei Zahlen (Cheval)</td><td>17 : 1</td></tr>
+          <tr><td>Außenrand einer Reihe – 3 Zahlen (Transversale)</td><td>11 : 1</td></tr>
+          <tr><td>Ecke zwischen vier Zahlen (Carré)</td><td>8 : 1</td></tr>
+          <tr><td>Außenrand zwischen zwei Reihen – 6 Zahlen</td><td>5 : 1</td></tr>
+          <tr><td>Dutzend oder Kolonne (2 : 1)</td><td>2 : 1</td></tr>
+          <tr><td>Rot/Schwarz, Gerade/Ungerade, 1–18/19–36</td><td>1 : 1</td></tr>
+        </table>
+        <p><b>Annoncen:</b> Voisins, Tiers, Orphelins und Jeu Zéro setzen mehrere Jetons auf eine Gruppe von Zahlen im Kessel. <b>Nachbarn:</b> antippen, dann eine Zahl wählen – gesetzt wird auf die Zahl und je zwei Nachbarn im Kessel.</p>
+        <p><b>Knöpfe:</b> Zurück (letzten Einsatz zurücknehmen), Leeren (alles zurück), Nochmal (Einsätze der letzten Runde), ×2 (alles verdoppeln), Entf. (einen Einsatz antippen zum Entfernen).</p>
+      </div>
+      <button id="intro-ok" class="btn gold intro-ok">Verstanden – weiter</button>
+    </div>
+    <footer class="credit">a Tom Hilger production</footer>
+  </section>
+
+  <!-- Start -->
+  <section id="screen-start" class="screen hidden">
+    <h1 class="title">Roulette</h1>
+    <div class="card start-card">
+      <label for="name-in">Dein Name / Tag</label>
+      <input id="name-in" maxlength="20" placeholder="z. B. Tom" autocomplete="nickname">
+      <div id="room-info" class="room-info hidden"></div>
+      <div class="role-buttons">
+        <button class="role" data-role="host">
+          <span class="role-ico">📺</span>
+          <span><b>Host</b><small>Hauptbildschirm für den Fernseher. Steuert das Spiel und kann selbst setzen.</small></span>
+        </button>
+        <button class="role" data-role="player">
+          <span class="role-ico">🪙</span>
+          <span><b>Spieler</b><small>Setzt Jetons am eigenen Handy – nur du siehst deine Einsätze.</small></span>
+        </button>
+      </div>
+    </div>
+    <footer class="credit">a Tom Hilger production</footer>
+  </section>
+
+  <!-- Host / Fernseher -->
+  <section id="screen-host" class="screen hidden">
+    <header class="host-head">
+      <div></div>
+      <h1 class="title big">Roulette</h1>
+      <div class="head-right"><span class="round-lbl">Runde</span> <span id="host-round" class="round">1</span></div>
+    </header>
+
+    <!-- Der Tisch: Kessel + Tableau wie im Casino -->
+    <main class="host-table">
+      <div class="wheel-box">
+        <canvas id="host-wheel"></canvas>
+        <div id="host-result" class="result-pop hidden"></div>
+      </div>
+      <div class="layout-box">
+        <div class="layout-head">
+          <span><span class="lbl"><span id="h-table-lbl">Tableau</span></span><br>Host <span id="h-name"></span> · Guthaben <b id="h-balance">0</b></span>
+          <span class="spin-slot">
+            <button id="btn-spin" class="btn gold">Kugel werfen <kbd>Leertaste</kbd></button>
+            <button id="btn-new" class="btn gold hidden">Neue Runde <kbd>Leertaste</kbd></button>
+            <div id="host-count" class="countdown hidden"></div>
+            <button id="btn-resetbets" class="btn" title="Alle Einsätze dieser Runde zurückgeben – nur bevor die Kugel geworfen wird">↺ Einsätze zurücksetzen</button>
+          </span>
+        </div>
+        <div id="h-panel"></div>
+      </div>
+    </main>
+
+    <div class="host-bottom">
+      <div class="card status-card">
+        <div id="host-phase" class="phase"></div>
+        <div id="host-sub" class="sub"></div>
+        <div id="host-history" class="history"></div>
+      </div>
+      <div class="card pot-card">
+        <div class="lbl" id="pot-label">Pot</div>
+        <div class="pot" id="host-pot">0</div>
+        <div class="carry" id="host-carry"></div>
+      </div>
+      <div class="card players-card">
+        <div class="lbl">Spieler · Einsatz · Guthaben</div>
+        <div id="host-players" class="pgrid"></div>
+        <div id="host-empty" class="empty">Noch keine Spieler – QR-Code findest du unter ⚙︎ Einstellungen</div>
+      </div>
+    </div>
+
+    <div class="host-controls">
+      <button id="btn-settings" class="btn">⚙︎ Einstellungen</button>
+      <button id="btn-full" class="btn">⛶ Vollbild</button>
+    </div>
+    <footer class="credit">a Tom Hilger production</footer>
+  </section>
+
+  <!-- Spieler -->
+  <section id="screen-player" class="screen hidden">
+    <header class="p-head">
+      <button id="p-settings" class="gear" title="Einstellungen" aria-label="Einstellungen">⚙︎</button>
+      <h1 class="title">Roulette</h1>
+      <div class="p-bar">
+        <button id="p-name" class="name-btn" title="Name / Tag ändern"></button>
+        <span>Guthaben <b id="p-balance">0</b></span>
+        <span>Einsatz <b id="p-stake">0</b></span>
+      </div>
+    </header>
+    <div class="p-top">
+      <div id="p-wheel-wrap" class="p-wheel"><canvas id="p-wheel"></canvas></div>
+      <div id="p-status" class="p-status"></div>
+    </div>
+    <div id="p-panel"></div>
+    <footer class="credit p-foot">a Tom Hilger production</footer>
+  </section>
+
+  <!-- Einstellungen -->
+  <div id="modal-settings" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head"><h2>Einstellungen</h2><button class="x" data-close>✕</button></div>
+      <div class="field">
+        <label class="lbl" for="host-name-in">Dein Name / Tag</label>
+        <div class="row nowrap"><input id="host-name-in" maxlength="20"><button id="save-name" class="btn">Ändern</button></div>
+      </div>
+      <div class="field">
+        <div class="lbl">Mitspielen</div>
+        <div class="qr-settings"><div id="qr-big" class="qr"></div>
+          <div>
+            <div class="room-code">Raum-Code <b id="room-code">–</b></div>
+            <div id="join-url-big" class="join-url"></div>
+            <small>QR-Code scannen oder Link schicken – geht auch über das Internet</small>
+            <div class="row nowrap"><button id="btn-copy" class="btn sm">Link kopieren</button><span id="room-status" class="room-status"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="lbl">Auszahlung</div>
+        <label class="radio"><input type="radio" name="mode" value="pot"> <span><b>Pot aufteilen</b><small>Alle Einsätze kommen in den Pot. Der Pot wird unter allen Gewinnern aufgeteilt – gewichtet nach echter Roulette-Quote (Plein 35:1, Cheval 17:1 …). Trifft niemand, bleibt der Pot als Jackpot liegen.</small></span></label>
+        <label class="radio"><input type="radio" name="mode" value="classic"> <span><b>Klassisch (Casino)</b><small>Die Bank zahlt feste Quoten aus, wie im Casino.</small></span></label>
+      </div>
+      <div class="field">
+        <label class="lbl" for="start-bal">Guthaben</label>
+        <input id="start-bal" type="number" inputmode="numeric" min="1" step="50">
+      </div>
+      <button id="save-settings" class="btn gold">Speichern</button>
+      <div class="field">
+        <div class="lbl">Spieler</div>
+        <div id="manage-players"></div>
+      </div>
+      <div class="row">
+        <button id="btn-resetbets2" class="btn gold">↺ Einsätze zurücksetzen</button>
+        <button id="btn-reset" class="btn danger">Alles auf Anfang</button>
+        <button id="btn-host-leave" class="btn">Spiel beenden</button>
+        <button class="btn" data-help>Anleitung</button>
+      </div>
+      <footer class="credit modal-credit">a Tom Hilger production</footer>
+    </div>
+  </div>
+
+  <!-- Einstellungen für Spieler -->
+  <div id="modal-psettings" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head"><h2>Einstellungen</h2><button class="x" data-close>✕</button></div>
+      <div class="field">
+        <label class="lbl" for="p-name-in">Dein Name / Tag</label>
+        <div class="row nowrap"><input id="p-name-in" maxlength="20"><button id="p-save-name" class="btn">Ändern</button></div>
+      </div>
+      <div class="field">
+        <div class="lbl">Dein Spiel</div>
+        <div id="p-info" class="p-info"></div>
+      </div>
+      <div class="field">
+        <div class="lbl">Deine Einsätze in dieser Runde</div>
+        <div id="p-betlist" class="mybets"></div>
+      </div>
+      <div class="row">
+        <button class="btn" data-help>Anleitung</button>
+        <button id="p-leave" class="btn danger">Abmelden</button>
+      </div>
+      <footer class="credit modal-credit">a Tom Hilger production</footer>
+    </div>
+  </div>
+
+  <!-- Anleitung -->
+  <div id="modal-help" class="modal hidden">
+    <div class="modal-box help-box">
+      <div class="modal-head"><h2>Anleitung</h2><button class="x" data-close>✕</button></div>
+      <div class="help help-copy"></div>
+      <button class="btn gold" data-close>Schließen</button>
+      <footer class="credit modal-credit">a Tom Hilger production</footer>
+    </div>
+  </div>
+
+  <!-- Eigene Rückfrage (Browser-Dialoge werden auf manchen Geräten/TVs blockiert) -->
+  <div id="modal-ask" class="modal hidden">
+    <div class="modal-box ask-box">
+      <p id="ask-text"></p>
+      <input id="ask-input" class="hidden" maxlength="20">
+      <div class="row ask-row">
+        <button id="ask-no" class="btn">Abbrechen</button>
+        <button id="ask-yes" class="btn gold">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
+  <script src="shared.js"></script>
+  <script src="engine.js"></script>
+  <script src="wheel.js"></script>
+  <script src="table.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
